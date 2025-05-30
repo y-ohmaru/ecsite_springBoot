@@ -1,0 +1,38 @@
+<!-- fragments/common-header.html -->
+<div th:fragment="common-header">
+	<header class="site-header">
+		<!-- ロゴ -->
+		<div class="header-logo">
+			<h1><a th:href="@{/}" class="logo-link">サンプルECサイト</a></h1>
+		</div>
+		<!-- 検索フォーム -->
+		<div class="header-search">
+			<form th:action="@{/search}" method="get">
+				<input type="text" name="query" placeholder="商品を検索">
+				<button type="submit">検索</button>
+			</form>
+		</div>
+		<!-- 認証＆カートエリア -->
+		<div class="header-auth-cart">
+			<div class="header-auth">
+				<!-- ログイン済みの場合：principal.username が "anonymousUser" でない場合 -->
+				<div sec:authorize="#authentication.principal != 'anonymousUser'">
+					<form th:action="@{/logout}" method="post">
+						<span sec:authentication="name"></span> さん、ログイン中&nbsp;
+						<input type="submit" value="ログアウト" class="logout-btn">
+					</form>
+				</div>
+				<!-- 匿名の場合：principal.username が "anonymousUser" の場合 -->
+				<div sec:authorize="#authentication.principal == 'anonymousUser'">
+					<a th:href="@{/login}" class="login-link">ログイン</a>
+				</div>
+			</div>
+			<!-- カートボタン -->
+			<div class="header-cart">
+				<a th:href="@{/cart}">
+					カート (<span th:text="${session.cart != null ? session.cart.totalQuantity : 0}">0</span>)
+				</a>
+			</div>
+		</div>
+	</header>
+</div>

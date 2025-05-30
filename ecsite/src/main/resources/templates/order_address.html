@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>住所入力 - サンプルECサイト</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .address-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .address-form label {
+      display: block;
+      margin-top: 10px;
+    }
+    .address-form input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+    }
+    .error {
+      color: red;
+      font-size: 0.9em;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- 共通ヘッダー -->
+  <div th:replace="~{header :: common-header}"></div>
+  
+  <div class="address-container">
+    <h1>配送先住所入力</h1>
+    <form th:action="@{/order/address}" th:object="${order_form}" method="post" class="address-form">
+      <label>郵便番号</label>
+      <input type="text" th:field="*{postal_code}" placeholder="例：123-4567" />
+      <div class="error" th:if="${#fields.hasErrors('postal_code')}" th:errors="*{postal_code}"></div>
+      
+      <label>住所</label>
+      <input type="text" th:field="*{delivery_address}" placeholder="例：東京都新宿区西新宿1-1-1" />
+      <div class="error" th:if="${#fields.hasErrors('delivery_address')}" th:errors="*{delivery_address}"></div>
+      
+      <label>氏名</label>
+      <input type="text" th:field="*{customer_name}" placeholder="例：山田太郎" />
+      <div class="error" th:if="${#fields.hasErrors('customer_name')}" th:errors="*{customer_name}"></div>
+      
+      <label>電話番号</label>
+      <input type="text" th:field="*{phone_number}" placeholder="例：03-1234-5678" />
+      <div class="error" th:if="${#fields.hasErrors('phone_number')}" th:errors="*{phone_number}"></div>
+      
+      <button type="submit" class="submit-btn">次へ進む</button>
+    </form>
+  </div>
+  
+  <!-- 共通フッター -->
+  <div th:replace="~{footer :: common-footer}"></div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>カート - サンプルECサイト</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .cart-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        .item-image img {
+            max-width: 100px;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .item-details {
+            flex-grow: 1;
+        }
+        .item-details p {
+            margin: 4px 0;
+        }
+        .item-action {
+            margin-left: 20px;
+        }
+        .action-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .clear-btn {
+            background-color: #ffc107;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+        .confirm-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- 共通ヘッダーのフラグメント -->
+    <div th:replace="~{header :: common-header}"></div>
+    
+    <div class="cart-container">
+        <h1>カートの中身</h1>
+        <div th:if="${cart == null or #lists.isEmpty(cart.items)}">
+            <p>カートは空です。</p>
+        </div>
+        <div th:if="${cart != null and !#lists.isEmpty(cart.items)}">
+            <div th:each="item : ${cart.items}" class="cart-item">
+                <div class="item-image">
+                    <!-- 商品画像 -->
+                    <img th:src="${item.product_form.image_url}" alt="商品画像" />
+                </div>
+                <div class="item-details">
+                    <p>商品名: <span th:text="${item.product_form.product_name}">商品名</span></p>
+                    <p>価格: <span th:text="${item.product_form.price}">価格</span> 円</p>
+                    <p>数量: <span th:text="${item.quantity}">数量</span></p>
+                    <p>小計: <span th:text="${item.product_form.price * item.quantity}">小計</span> 円</p>
+                </div>
+                <div class="item-action">
+                    <form th:action="@{/cart/remove}" method="post" style="margin:0;">
+                        <input type="hidden" name="product_id" th:value="${item.productId}" />
+                        <button type="submit" class="action-btn">削除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- カート内に商品がある場合のアクションボタン -->
+        <div th:if="${cart != null and !#lists.isEmpty(cart.items)}">
+            <form th:action="@{/cart/clear}" method="post" style="display:inline;">
+                <button type="submit" class="clear-btn">カートを空にする</button>
+            </form>
+            <a th:href="@{/purchase/confirm}" class="confirm-btn">購入確認へ進む</a>
+        </div>
+    </div>
+    
+    <!-- 共通フッターのフラグメント -->
+    <div th:replace="~{footer :: common-footer}"></div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>検索結果 - サンプルECサイト</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* 検索結果ページ専用のスタイル例 */
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .search-header p {
+            font-size: 16px;
+            color: #555;
+        }
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            list-style: none;
+            padding: 0;
+        }
+        .product-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .product-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            max-width: 250px;
+            border-bottom: 1px solid #ddd;
+        }
+        .product-info {
+            padding: 10px;
+            text-align: center;
+        }
+        .product-name {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #333;
+        }
+        .product-price {
+            font-size: 16px;
+            color: #007bff;
+            margin: 5px 0;
+        }
+        .product-description {
+            font-size: 14px;
+            color: #666;
+        }
+        .no-results {
+            text-align: center;
+            font-size: 16px;
+            color: #777;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 共通ヘッダーのフラグメントを挿入 -->
+    <div th:replace="~{header :: common-header}"></div>
+    
+    <div class="search-container">
+        <div class="search-header">
+            <h1>検索結果</h1>
+            <!-- query 属性がセットされていれば表示 -->
+            <p th:if="${query != null}" th:text="'「' + ${query} + '」で検索した結果です。'">検索キーワードの結果表示</p>
+            <!-- query 属性が空の場合 -->
+            <p th:if="${query == null || #strings.isEmpty(query)}">全商品を表示中</p>
+            <a th:href="@{/}" style="text-decoration: none; color: #007bff;">トップページへ戻る</a>
+        </div>
+        
+        <!-- 商品リスト -->
+        <ul class="product-list">
+            <li th:each="product : ${products}" class="product-item">
+                <a th:href="@{/product/{id}(id=${product.product_id})}">
+                    <img th:src="${product.image_url}" alt="商品画像" class="product-image">
+                </a>
+                <div class="product-info">
+                    <h2 class="product-name" th:text="${product.product_name}">商品名</h2>
+                    <p class="product-price" th:text="'価格: ' + ${product.price} + ' 円'">価格</p>
+                    <p class="product-description" th:text="${product.description}">商品説明</p>
+                </div>
+            </li>
+        </ul>
+        
+        <!-- 商品が見つからなかった場合のメッセージ -->
+        <div th:if="${#lists.isEmpty(products)}" class="no-results">
+            <p>検索結果が見つかりませんでした。</p>
+        </div>
+    </div>
+    
+    <!-- 共通フッターのフラグメントを挿入 -->
+    <div th:replace="~{footer :: common-footer}"></div>
+</body>
+</html>

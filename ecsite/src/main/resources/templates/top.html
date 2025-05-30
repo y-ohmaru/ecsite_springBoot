@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>トップページ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* 商品一覧セクションのスタイル */
+        .product-list {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .product-list h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+        .product-list ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .product-list li {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .product-list li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .product-list a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .product-list img {
+            width: 100%;
+            height: auto;
+            max-width: 200px;
+            max-height: 200px;
+            margin: 0 auto 10px;
+            display: block;
+            border-radius: 4px;
+        }
+        .product-list h4 {
+            margin: 10px 0 5px;
+            font-size: 18px;
+            color: #333;
+        }
+        .product-list p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 共通ヘッダーのフラグメントを挿入 -->
+    <div th:replace="~{header :: common-header}"></div>
+    
+    <!-- メインコンテンツ -->
+    <main>
+        <!-- ヒーローバナー -->
+        <section class="hero-banner">
+            <h2>ようこそ、サンプルECサイトへ！</h2>
+            <p>最新の商品情報やお得なキャンペーンをご覧ください。</p>
+        </section>
+        
+        <!-- 商品一覧セクション -->
+        <section class="product-list">
+            <h3>商品一覧</h3>
+            <ul>
+                <li th:each="product : ${products}">
+                    <a th:href="@{/product/{id}(id=${product.product_id})}">
+                        <img th:src="${product.image_url}" alt="商品画像">
+                        <h4 th:text="${product.product_name}">商品名</h4>
+                    </a>
+                    <p th:text="'価格: ' + ${product.price} + ' 円'">価格</p>
+                    <p th:text="${product.description}">説明</p>
+                </li>
+            </ul>
+        </section>
+    </main>
+    
+    <!-- 共通フッターのフラグメントを挿入 -->
+    <div th:replace="~{footer :: common-footer}"></div>
+</body>
+</html>

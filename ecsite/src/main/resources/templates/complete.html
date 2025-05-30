@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>注文完了 - サンプルECサイト</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .complete-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .complete-container h1 {
+      font-size: 32px;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+    .complete-container p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+    .order-summary, .order-items {
+      margin: 20px auto;
+      max-width: 800px;
+      text-align: left;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    .order-summary h2, .order-items h2 {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .order-summary p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .order-items table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .order-items th, .order-items td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    .total-amount {
+      text-align: right;
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .back-home {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 共通ヘッダー -->
+  <div th:replace="~{header :: common-header}"></div>
+  
+  <div class="complete-container">
+    <h1>ご注文ありがとうございました！</h1>
+    <p>ご注文内容の確認メールをお送りしました。<br>
+       今後の配送状況は、マイページよりご確認いただけます。</p>
+    
+    <!-- 配送先情報のサマリー -->
+    <div class="order-summary">
+      <h2>配送先情報</h2>
+      <p><strong>郵便番号:</strong> <span th:text="${order.postal_code}">000-0000</span></p>
+      <p><strong>住所:</strong> <span th:text="${order.delivery_address}">東京都〇〇区〇〇町1-1-1</span></p>
+      <p><strong>お名前:</strong> <span th:text="${order.customer_name}">山田太郎</span></p>
+      <p><strong>電話番号:</strong> <span th:text="${order.phone_number}">03-1234-5678</span></p>
+    </div>
+    
+    <!-- ご注文商品の一覧 -->
+    <div class="order-items" th:if="${order.order_detail != null}">
+      <h2>ご注文商品</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>商品名</th>
+            <th>数量</th>
+            <th>単価 (円)</th>
+            <th>小計 (円)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="item : ${order.order_detail}">
+            <td th:text="${item.product_name}">商品名</td>
+            <td th:text="${item.quantity}">数量</td>
+            <td th:text="${item.unit_price}">単価</td>
+            <td th:text="${item.quantity * item.unit_price}">小計</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- 合計金額 -->
+    <div class="total-amount">
+      合計金額: <span th:text="${order.total_amount}">0</span> 円
+    </div>
+    
+    <!-- トップページへ戻るリンク -->
+    <a th:href="@{/}" class="back-home">トップページへ戻る</a>
+  </div>
+  
+  <!-- 共通フッター -->
+  <div th:replace="~{footer :: common-footer}"></div>
+</body>
+</html>
