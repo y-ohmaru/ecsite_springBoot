@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>管理画面 | 商品登録</title>
+</head>
+
+<body>
+
+<h2>商品登録</h2>
+
+<form th:action="@{/admin/products}" th:object="${productForm}" method="post">
+
+    <div>
+        <label>商品名</label><br>
+        <input type="text" th:field="*{product_name}" required>
+    </div>
+
+    <div>
+        <label>商品説明</label><br>
+        <textarea th:field="*{description}"></textarea>
+    </div>
+
+    <div>
+        <label>価格</label><br>
+        <input type="number" th:field="*{price}" required>
+    </div>
+
+    <div>
+        <label>在庫数</label><br>
+        <input type="number" th:field="*{stock_quantity}" required>
+    </div>
+
+    <div>
+        <label>画像URL</label><br>
+        <input type="text" th:field="*{image_url}">
+    </div>
+
+    <div>
+        <label>カテゴリID</label><br>
+        <input type="number" th:field="*{category_id}">
+    </div>
+
+    <br>
+
+    <button type="submit">商品登録</button>
+
+</form>
+
+<a th:href="@{/admin/products}">商品一覧へ戻る</a>
+
+</body>
+</html>
