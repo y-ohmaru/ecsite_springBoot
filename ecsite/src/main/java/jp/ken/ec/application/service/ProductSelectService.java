@@ -10,81 +10,72 @@ import jp.ken.ec.domain.entity.ProductEntity;
 import jp.ken.ec.domain.repository.ProductRepository;
 import jp.ken.ec.presentation.form.ProductForm;
 
-
 @Service
 public class ProductSelectService {
-	private final ModelMapper modelMapper;
-	private final ProductRepository product_repository;
-	
-	public ProductSelectService(ProductRepository product_repository,ModelMapper modelMapper) {
-		this.modelMapper=modelMapper;
-		this.product_repository = product_repository;
-	}
-	//商品一覧取得
-	public List<ProductForm> get_all_product() throws Exception{
-		List<ProductEntity> p_entity = product_repository.get_all_product();
-		
-		List<ProductForm> p_form_list = convert(p_entity);
-		
-		return p_form_list;
-		
-		
-	}
-	//商品取得商品IDをもとに、1件の商品情報
-	public ProductForm get_product_id(Long product_id) throws Exception{
-		try {
-			ProductEntity p_entity = product_repository.get_product_id(product_id);
-			ProductForm p_form = convert_toForm(p_entity);
-			
-			return p_form;
-			
-		}catch(Exception e) {
-			throw new Exception("商品が見つかりませんでした。",e);
-		}
-	}
-	
-	//キーワード検索
-	public List<ProductForm> search_products(String keyword) throws Exception {
-		List<ProductEntity> p_entity;
-		
-		if(keyword == null || keyword.trim().isEmpty()) {
-			//キーワードが空の場合は全件取得
-			p_entity = product_repository.get_all_product();
-		}else {
-			//商品名にキーワードがある場合。
-			p_entity = product_repository.search_product(keyword);
-		}
-		
-		List<ProductForm> p_form_list = convert(p_entity);
-		return p_form_list;
-		
-		
-	}
-	
-	
-	// エンティティをフォームに変換するメソッド
-	private ProductForm convert_toForm(ProductEntity p_entity) {
-		ProductForm form = modelMapper.map(p_entity,ProductForm.class);
-		
-		return form;
-	}
-	
-	
-	
-	// エンティティリストをフォームリストに変換する共通メソッド
-	private List<ProductForm> convert(List<ProductEntity> entityList){
-		
-		List<ProductForm> formList = new ArrayList<ProductForm>();
-		
-		for(ProductEntity entity : entityList) {
-			ProductForm form = modelMapper.map(entity,ProductForm.class);
-			
-			formList.add(form);
-		}
-		return formList;
-	}
-	
-	
-	
 
+    private final ModelMapper modelMapper;
+    private final ProductRepository product_repository;
+
+    public ProductSelectService(ProductRepository product_repository, ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+        this.product_repository = product_repository;
+    }
+
+    // 商品一覧取得
+    public List<ProductForm> get_all_product() throws Exception {
+        List<ProductEntity> p_entity = product_repository.get_all_product();
+        return convert(p_entity);
+    }
+
+    // 商品1件取得
+    public ProductForm get_product_id(Long product_id) throws Exception {
+        try {
+            ProductEntity p_entity = product_repository.get_product_id(product_id);
+            return convert_toForm(p_entity);
+        } catch (Exception e) {
+            throw new Exception("商品が見つかりませんでした。", e);
+        }
+    }
+
+    // キーワード検索
+    public List<ProductForm> search_products(String keyword) throws Exception {
+        List<ProductEntity> p_entity;
+        if (keyword == null || keyword.trim().isEmpty()) {
+            p_entity = product_repository.get_all_product();
+        } else {
+            p_entity = product_repository.search_product(keyword);
+        }
+        return convert(p_entity);
+    }
+
+    // 商品新規登録
+    public void create_products(ProductForm form) {
+        ProductEntity entity = modelMapper.map(form, ProductEntity.class);
+        product_repository.save(entity);
+    }
+
+    // 商品更新
+    public void update_product(ProductForm form) {
+        ProductEntity entity = modelMapper.map(form, ProductEntity.class);
+        product_repository.update(entity);
+    }
+
+    // 商品削除
+    public void delete_product(Long product_id) {
+        product_repository.delete(product_id);
+    }
+
+    // --- 変換ヘルパー ---
+
+    private ProductForm convert_toForm(ProductEntity p_entity) {
+        return modelMapper.map(p_entity, ProductForm.class);
+    }
+
+    private List<ProductForm> convert(List<ProductEntity> entityList) {
+        List<ProductForm> formList = new ArrayList<>();
+        for (ProductEntity entity : entityList) {
+            formList.add(modelMapper.map(entity, ProductForm.class));
+        }
+        return formList;
+    }
 }
