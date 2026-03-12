@@ -1,156 +1,469 @@
 <!DOCTYPE html>
-<html lang="ja"
-      xmlns:th="http://www.thymeleaf.org"
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>管理画面 | 商品一覧</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .admin-container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 20px;
-        }
+  <meta charset="UTF-8">
+  <title>商品フォーム - 管理者パネル</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .admin-header {
-            margin-bottom: 20px;
-        }
+    :root {
+      --bg:           #f0f2f5;
+      --surface:      #ffffff;
+      --sidebar-bg:   #0f172a;
+      --sidebar-hover:#1e293b;
+      --accent:       #2563eb;
+      --accent-light: #eff6ff;
+      --accent-dark:  #1d4ed8;
+      --danger:       #dc2626;
+      --danger-light: #fef2f2;
+      --text-1: #0f172a;
+      --text-2: #475569;
+      --text-3: #94a3b8;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.06), 0 2px 4px rgba(0,0,0,.05);
+    }
 
-        .admin-header h2 {
-            margin-bottom: 8px;
-            color: #333;
-        }
+    body {
+      font-family: 'DM Sans', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+    }
 
-        .admin-header p {
-            color: #666;
-            margin: 0;
-        }
+    .admin-layout { display: flex; min-height: 100vh; }
 
-        .admin-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0;
-        }
+    /* ─── SIDEBAR（共通）─── */
+    .sidebar {
+      width: 248px; min-width: 248px;
+      background: var(--sidebar-bg);
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .sidebar-brand { padding: 28px 20px 22px; border-bottom: 1px solid #1e293b; }
+    .brand-eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #475569; font-weight: 600; margin-bottom: 6px; }
+    .brand-title   { font-size: 17px; font-weight: 700; color: #f1f5f9; letter-spacing: -.02em; }
+    .sidebar-nav   { padding: 20px 12px; flex: 1; }
+    .nav-group-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #334155; padding: 6px 8px 4px; font-weight: 700; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      color: #94a3b8; text-decoration: none;
+      font-size: 13.5px; font-weight: 500;
+      transition: background .12s, color .12s;
+      margin-bottom: 1px;
+      border: none; background: none; cursor: pointer;
+      font-family: inherit; width: 100%; text-align: left;
+    }
+    .nav-item:hover  { background: var(--sidebar-hover); color: #e2e8f0; }
+    .nav-item.active { background: #1e3a5f; color: #93c5fd; font-weight: 600; }
+    .nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+    .sidebar-footer { padding: 14px 12px; border-top: 1px solid #1e293b; }
 
-        .admin-actions a {
-            display: inline-block;
-            padding: 10px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 14px;
-        }
+    /* ─── MAIN ─── */
+    .main-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
-        .btn-new {
-            background-color: #2d7ff9;
-            color: white;
-        }
+    /* ─── TOPBAR ─── */
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+      box-shadow: var(--shadow-sm);
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); }
+    .breadcrumb .sep { color: var(--border); font-size: 16px; }
+    .breadcrumb a { color: var(--text-3); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb .current { color: var(--text-1); font-weight: 600; }
+    .topbar-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
 
-        .btn-back {
-            background-color: #f1f1f1;
-            color: #333;
-        }
+    /* ─── PAGE BODY ─── */
+    .page-body { padding: 32px; flex: 1; }
 
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-        }
+    /* ─── PAGE HEADER ─── */
+    .page-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px; gap: 16px;
+    }
+    .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -.03em; }
+    .page-header p  { font-size: 13px; color: var(--text-2); margin-top: 3px; }
 
-        .admin-table th,
-        .admin-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-            vertical-align: middle;
-        }
+    /* ─── FORM LAYOUT ─── */
+    .form-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      align-items: start;
+    }
 
-        .admin-table th {
-            background-color: #f5f5f5;
-            color: #333;
-        }
+    /* ─── CARD ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .card-header h2 {
+      font-size: 14px; font-weight: 700;
+      color: var(--text-1); letter-spacing: -.01em;
+    }
+    .card-header p { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .card-body { padding: 24px; }
 
-        .admin-table img {
-            width: 80px;
-            height: auto;
-            border-radius: 4px;
-        }
+    /* ─── FORM ELEMENTS ─── */
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
 
-        .action-links a {
-            margin-right: 10px;
-            text-decoration: none;
-            color: #2d7ff9;
-            font-size: 14px;
-        }
+    label {
+      display: block;
+      font-size: 12.5px; font-weight: 600;
+      color: var(--text-1); margin-bottom: 7px;
+    }
+    .required { color: var(--danger); margin-left: 2px; }
+    .optional  { font-size: 11px; color: var(--text-3); font-weight: 400; margin-left: 4px; }
 
-        .action-links a.delete-link {
-            color: #d9534f;
-        }
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 13.5px;
+      color: var(--text-1);
+      background: var(--surface);
+      font-family: inherit;
+      transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px #dbeafe;
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-3); }
+    textarea { resize: vertical; line-height: 1.6; }
 
-        .empty-message {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #fafafa;
-            border: 1px solid #ddd;
-            text-align: center;
-            color: #666;
-        }
-    </style>
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .field-error {
+      font-size: 12px; color: var(--danger);
+      margin-top: 5px; display: flex; align-items: center; gap: 4px;
+    }
+
+    .hint { font-size: 12px; color: var(--text-3); margin-top: 5px; }
+
+    /* ─── IMAGE PREVIEW ─── */
+    .image-preview-box {
+      width: 100%; aspect-ratio: 1;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+      color: var(--text-3); font-size: 13px;
+      background: #f8fafc;
+      overflow: hidden; margin-bottom: 14px;
+      transition: border-color .15s;
+    }
+    .image-preview-box img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .image-preview-box.has-image { border-style: solid; border-color: var(--border); }
+    .preview-icon { font-size: 32px; }
+
+    /* ─── ALERT ─── */
+    .alert {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 9px;
+      font-size: 13px; margin-bottom: 20px;
+      border: 1.5px solid;
+    }
+    .alert-error { background: var(--danger-light); color: var(--danger); border-color: #fecaca; }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 0 20px; height: 42px;
+      border-radius: 9px;
+      font-size: 14px; font-weight: 600; font-family: inherit;
+      cursor: pointer; text-decoration: none; border: none;
+      transition: all .15s; white-space: nowrap;
+    }
+    .btn-primary  { background: var(--accent); color: #fff; width: 100%; justify-content: center; }
+    .btn-primary:hover  { background: var(--accent-dark); box-shadow: var(--shadow-md); }
+    .btn-secondary { background: var(--bg); color: var(--text-2); border: 1.5px solid var(--border); width: 100%; justify-content: center; }
+    .btn-secondary:hover { background: #e2e8f0; color: var(--text-1); }
+
+    /* ─── STATUS INDICATOR ─── */
+    .form-status {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: var(--accent-light);
+      border-radius: 9px;
+      font-size: 12.5px; color: var(--accent); font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px; background: var(--border);
+      margin: 20px 0;
+    }
+  </style>
 </head>
 <body>
-    <div th:replace="~{header :: common-header}"></div>
 
-    <main class="admin-container">
-        <section class="admin-header">
-            <h2>管理画面 - 商品一覧</h2>
-            <p>登録済み商品の確認・編集・削除を行います。</p>
-        </section>
+<div class="admin-layout">
 
-        <div class="admin-actions">
-            <a th:href="@{/admin}" class="btn-back">管理画面トップへ戻る</a>
-            <a th:href="@{/admin/products/create}" class="btn-new">商品を新規登録</a>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-eyebrow">Admin Panel</div>
+      <div class="brand-title">EC管理システム</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">メインメニュー</div>
+      <a th:href="@{/admin}"            class="nav-item"><span class="nav-icon">🏠</span>ダッシュボード</a>
+      <a th:href="@{/admin/products}"   class="nav-item active"><span class="nav-icon">📦</span>商品管理</a>
+      <a th:href="@{/admin/users}"      class="nav-item"><span class="nav-icon">👤</span>ユーザー管理</a>
+      <a th:href="@{/admin/orders}"     class="nav-item"><span class="nav-icon">🛒</span>注文管理</a>
+      <a th:href="@{/admin/categories}" class="nav-item"><span class="nav-icon">🏷️</span>カテゴリー管理</a>
+      <div class="nav-group-label" style="margin-top:16px;">その他</div>
+      <a th:href="@{/}" class="nav-item"><span class="nav-icon">🌐</span>サイトを見る</a>
+    </nav>
+    <div class="sidebar-footer">
+      <form th:action="@{/logout}" method="post">
+        <button type="submit" class="nav-item">
+          <span class="nav-icon">🚪</span>ログアウト
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <nav class="breadcrumb">
+        <a th:href="@{/admin}">管理者</a>
+        <span class="sep">›</span>
+        <a th:href="@{/admin/products}">商品管理</a>
+        <span class="sep">›</span>
+        <span class="current"
+              th:text="${productForm.product_id != null} ? '編集' : '新規登録'">フォーム</span>
+      </nav>
+      <div class="topbar-user">
+        <div class="avatar">A</div>
+        <span sec:authentication="name">admin</span>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- PAGE HEADER -->
+      <div class="page-header">
+        <div>
+          <h1 th:text="${productForm.product_id != null} ? '商品を編集' : '新規商品を登録'">商品フォーム</h1>
+          <p th:text="${productForm.product_id != null}
+                     ? '既存の商品情報を更新します'
+                     : '新しい商品情報を入力して登録してください'"></p>
         </div>
+        <a th:href="@{/admin/products}" class="btn btn-secondary"
+           style="width:auto;padding:0 20px;">← 一覧に戻る</a>
+      </div>
 
-        <table class="admin-table" th:if="${products != null and !#lists.isEmpty(products)}">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>画像</th>
-                    <th>商品名</th>
-                    <th>価格</th>
-                    <th>在庫数</th>
-                    <th>カテゴリID</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="product : ${products}">
-                    <td th:text="${product.product_id}">1</td>
-                    <td>
-                        <img th:if="${product.image_url != null and product.image_url != ''}"
-                             th:src="${product.image_url}" alt="商品画像">
-                        <span th:if="${product.image_url == null or product.image_url == ''}">画像なし</span>
-                    </td>
-                    <td th:text="${product.product_name}">商品名</td>
-                    <td th:text="${product.price} + ' 円'">1000 円</td>
-                    <td th:text="${product.stock_quantity}">10</td>
-                    <td th:text="${product.category_id}">1</td>
-                    <td class="action-links">
-                        <a th:href="@{/admin/products/edit/{id}(id=${product.product_id})}">編集</a>
-                        <a th:href="@{/admin/products/delete/{id}(id=${product.product_id})}"
-                           class="delete-link"
-                           onclick="return confirm('この商品を削除しますか？');">削除</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+      <!-- ALERT -->
+      <div th:if="${error}" class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
 
-        <div class="empty-message" th:if="${products == null or #lists.isEmpty(products)}">
-            商品が登録されていません。
+      <!-- ===== FORM ===== -->
+      <form th:action="${productForm.product_id != null}
+                        ? @{/admin/products/edit/{id}(id=${productForm.product_id})}
+                        : @{/admin/products/create}"
+            th:object="${productForm}"
+            method="post">
+
+        <div class="form-layout">
+
+          <!-- 左カラム：基本情報 -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+
+            <!-- 基本情報カード -->
+            <div class="card">
+              <div class="card-header">
+                <h2>基本情報</h2>
+                <p>商品名・説明・価格などを入力してください</p>
+              </div>
+              <div class="card-body">
+
+                <div class="form-group">
+                  <label for="product_name">商品名 <span class="required">*</span></label>
+                  <input type="text" id="product_name" th:field="*{product_name}"
+                         placeholder="例：ノートパソコン Pro 15" />
+                  <div class="field-error" th:if="${#fields.hasErrors('product_name')}"
+                       th:errors="*{product_name}">エラー</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="description">商品説明 <span class="optional">（任意）</span></label>
+                  <textarea id="description" th:field="*{description}"
+                            rows="5"
+                            placeholder="商品の特徴・スペック・注意事項などを入力してください"></textarea>
+                  <div class="field-error" th:if="${#fields.hasErrors('description')}"
+                       th:errors="*{description}">エラー</div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="price">価格（円） <span class="required">*</span></label>
+                    <input type="number" id="price" th:field="*{price}"
+                           placeholder="例：12800" min="0" step="1" />
+                    <div class="field-error" th:if="${#fields.hasErrors('price')}"
+                         th:errors="*{price}">エラー</div>
+                  </div>
+                  <div class="form-group">
+                    <label for="stock_quantity">在庫数 <span class="required">*</span></label>
+                    <input type="number" id="stock_quantity" th:field="*{stock_quantity}"
+                           placeholder="例：50" min="0" />
+                    <div class="field-error" th:if="${#fields.hasErrors('stock_quantity')}"
+                         th:errors="*{stock_quantity}">エラー</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- カテゴリーカード -->
+            <div class="card">
+              <div class="card-header">
+                <h2>カテゴリー</h2>
+                <p>商品の分類を選択してください</p>
+              </div>
+              <div class="card-body">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label for="category_id">カテゴリー <span class="required">*</span></label>
+                  <select id="category_id" th:field="*{category_id}">
+                    <option value="">── カテゴリーを選択 ──</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.category_id}"
+                            th:text="${cat.category_name}"></option>
+                  </select>
+                  <div class="field-error" th:if="${#fields.hasErrors('category_id')}"
+                       th:errors="*{category_id}">エラー</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 右カラム：画像・アクション -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+
+            <!-- 画像カード -->
+            <div class="card">
+              <div class="card-header">
+                <h2>商品画像</h2>
+                <p>画像URLを入力するとプレビューが表示されます</p>
+              </div>
+              <div class="card-body">
+
+                <!-- プレビュー -->
+                <div class="image-preview-box" id="previewBox">
+                  <span class="preview-icon">🖼️</span>
+                  <span>プレビューなし</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0;">
+                  <label for="image_url">画像URL <span class="optional">（任意）</span></label>
+                  <input type="text" id="image_url" th:field="*{image_url}"
+                         placeholder="/images/products/sample.png"
+                         oninput="updatePreview(this.value)" />
+                  <p class="hint">例：/images/products/laptop.png</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- アクションカード -->
+            <div class="card">
+              <div class="card-header">
+                <h2>アクション</h2>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${productForm.product_id != null} ? '✏️ 更新する' : '✅ 登録する'">
+                  保存する
+                </button>
+                <a th:href="@{/admin/products}" class="btn btn-secondary">キャンセル</a>
+
+                <!-- 編集時のみ削除ボタンを表示 -->
+                <div th:if="${productForm.product_id != null}">
+                  <div class="divider"></div>
+                  <form th:action="@{/admin/products/delete/{id}(id=${productForm.product_id})}"
+                        method="post"
+                        onsubmit="return confirm('この商品を削除しますか？この操作は元に戻せません。')">
+                    <button type="submit" class="btn btn-secondary"
+                            style="color:var(--danger);border-color:#fecaca;">
+                      🗑️ この商品を削除
+                    </button>
+                  </form>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
         </div>
-    </main>
+      </form>
 
-    <div th:replace="~{footer :: common-footer}"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 初期プレビュー
+  const urlInput = document.getElementById('image_url');
+  if (urlInput && urlInput.value) updatePreview(urlInput.value);
+
+  function updatePreview(url) {
+    const box = document.getElementById('previewBox');
+    if (!box) return;
+    if (url && url.trim()) {
+      box.innerHTML = '<img src="' + url.trim() + '" alt="プレビュー" onerror="clearPreview()">';
+      box.classList.add('has-image');
+    } else {
+      clearPreview();
+    }
+  }
+
+  function clearPreview() {
+    const box = document.getElementById('previewBox');
+    if (!box) return;
+    box.innerHTML = '<span class="preview-icon">🖼️</span><span>プレビューなし</span>';
+    box.classList.remove('has-image');
+  }
+</script>
 </body>
 </html>
