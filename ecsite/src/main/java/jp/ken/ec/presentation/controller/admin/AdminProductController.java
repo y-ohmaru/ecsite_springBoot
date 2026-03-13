@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 import jp.ken.ec.application.service.ProductSelectService;
@@ -50,12 +51,13 @@ public class AdminProductController {
     // 商品新規登録 POST
     @PostMapping("/create")
     public String create(@Valid @ModelAttribute("productForm") ProductForm productForm,
-                         BindingResult bindingResult, Model model) {
+                         BindingResult bindingResult, Model model,RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "admin/product_form";
         }
         try {
             p_select_service.create_products(productForm);
+            redirectAttributes.addFlashAttribute("success","商品を登録しました");
             return "redirect:/admin/products";
         } catch (Exception e) {
             model.addAttribute("error", "商品登録に失敗しました: " + e.getMessage());
