@@ -13,6 +13,8 @@ public class UserEntity {
 	private String email;
 	//パスワード
 	private String password;
+	//ロール
+	private String role;
 	// 作成日時（DBカラム名と一致）
 	private String created_at; 
 	// 更新日時（DBカラム名と一致）

@@ -20,7 +20,7 @@ public class UserRepository {
 	}
 	
 	public List<UserEntity> get_all_user() throws Exception{
-		String sql = "SELECT user_id, username, email, password, created_at, updated_at FROM users ORDER BY user_id";
+		String sql = "SELECT user_id, username, email, password, role, created_at, updated_at FROM users ORDER BY user_id";
 		List<UserEntity> user_entity = jdbcTemplate.query(sql,user_mapper );
 		
 		return user_entity;
@@ -28,7 +28,7 @@ public class UserRepository {
 	
 	
 	 public UserEntity findByUsername(String username) {
-	        String sql = "SELECT user_id, username, email, password, created_at, updated_at FROM users WHERE username = ?";
+	        String sql = "SELECT user_id, username, email, password, role, created_at, updated_at FROM users WHERE username = ?";
 	        try {
 	            return jdbcTemplate.queryForObject(sql, user_mapper, username);
 	        } catch (EmptyResultDataAccessException e) {

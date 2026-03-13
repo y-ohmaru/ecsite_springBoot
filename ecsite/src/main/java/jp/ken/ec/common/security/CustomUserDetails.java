@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jp.ken.ec.domain.entity.UserEntity;
@@ -27,7 +28,9 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // 例として全ユーザーに固定で ROLE_USER を付与
-        return Collections.singleton(() -> "ROLE_USER");
+        //return Collections.singleton(() -> "ROLE_USER");
+    	
+    	return Collections.singleton(new SimpleGrantedAuthority(user.getRole()));
     }
 
     @Override

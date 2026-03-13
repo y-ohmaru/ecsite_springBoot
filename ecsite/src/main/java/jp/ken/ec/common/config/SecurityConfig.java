@@ -48,7 +48,7 @@ public class SecurityConfig {
 	            // 静的リソースやその他のページは未認証でもアクセス可能
 	            .requestMatchers("/css/**", "/images/**", "/", "/product/**", "/h2-console/**", "/search", "/search/**").permitAll()
 	            //(後でROLE_ADMINに変更予定)
-	            .requestMatchers("/admin/**").authenticated()
+	            .requestMatchers("/admin/**").hasRole("ADMIN")
 	            // その他は認証が必要
 	            .anyRequest().authenticated()
 	    )
