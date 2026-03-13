@@ -1,5 +1,7 @@
 package jp.ken.ec.presentation.controller.admin;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,7 +39,16 @@ public class AdminProductController {
     // 管理者用商品一覧
     @GetMapping
     public String list(Model model) throws Exception {
-        model.addAttribute("products", p_select_service.get_all_product());
+    	
+    	List<ProductForm> products = p_select_service.get_all_product();
+        //在庫数を計算してModelに渡す
+        long inStock =  products.stream().filter(p ->p.getStock_quantity() > 5 ).count();
+        long lowStock =  products.stream().filter(p ->p.getStock_quantity() <= 5 ).count();
+        
+        model.addAttribute("products",products);
+        model.addAttribute("inStock",inStock);
+        model.addAttribute("lowStock",lowStock);
+     
         return "admin/product_list";
     }
 
