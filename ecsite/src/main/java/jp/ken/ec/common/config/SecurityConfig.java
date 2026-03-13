@@ -47,6 +47,8 @@ public class SecurityConfig {
 	            .requestMatchers(HttpMethod.GET, "/login").permitAll()
 	            // 静的リソースやその他のページは未認証でもアクセス可能
 	            .requestMatchers("/css/**", "/images/**", "/", "/product/**", "/h2-console/**", "/search", "/search/**").permitAll()
+	            //(後でROLE_ADMINに変更予定)
+	            .requestMatchers("/admin/**").authenticated()
 	            // その他は認証が必要
 	            .anyRequest().authenticated()
 	    )
@@ -66,7 +68,8 @@ public class SecurityConfig {
 		
 		http.sessionManagement(session -> session
 				.maximumSessions(1)
-				.maxSessionsPreventsLogin(true));
+				//セッション管理後で修正
+				.maxSessionsPreventsLogin(false));
 		
 		return http.build();
 		
