@@ -470,13 +470,9 @@
                       th:text="'¥' + ${#numbers.formatInteger(product.price, 1, 'COMMA')}"></span>
               </td>
               <td>
-                <span th:class="${product.stock_quantity == 0}   ? 'badge badge-out'
-                               :(${product.stock_quantity} <= 5) ? 'badge badge-low'
-                               : 'badge badge-ok'"
-                      th:text="${product.stock_quantity == 0}   ? '在庫切れ'
-                              :(${product.stock_quantity} <= 5) ? ${product.stock_quantity} + '個（少）'
-                              : ${product.stock_quantity} + '個'">
-                </span>
+                <span th:class="${product.stock_quantity == 0} ? 'badge badge-out' : (product.stock_quantity <= 5 ? 'badge badge-low' : 'badge badge-ok')"
+                	  th:text="${product.stock_quantity == 0} ? '在庫切れ' : (product.stock_quantity <= 5 ? product.stock_quantity + '個（少）' : product.stock_quantity + '個')">
+				</span>
               </td>
               <td>
                 <span class="badge badge-cat"
