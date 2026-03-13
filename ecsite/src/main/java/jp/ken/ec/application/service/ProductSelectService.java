@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jp.ken.ec.domain.entity.ProductEntity;
 import jp.ken.ec.domain.repository.ProductRepository;
@@ -49,18 +50,21 @@ public class ProductSelectService {
     }
 
     // 商品新規登録
+    @Transactional
     public void create_products(ProductForm form) {
         ProductEntity entity = modelMapper.map(form, ProductEntity.class);
         product_repository.save(entity);
     }
 
     // 商品更新
+    @Transactional
     public void update_product(ProductForm form) {
         ProductEntity entity = modelMapper.map(form, ProductEntity.class);
         product_repository.update(entity);
     }
 
     // 商品削除
+    @Transactional
     public void delete_product(Long product_id) {
         product_repository.delete(product_id);
     }

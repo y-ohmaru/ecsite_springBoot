@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 
 public class ProductForm {
-	@NotNull
+	
 	private Long product_id;
 	
 	@NotNull
