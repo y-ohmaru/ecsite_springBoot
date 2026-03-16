@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>ダッシュボード - 管理者パネル</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f0f2f5; --surface: #ffffff;
+      --sidebar-bg: #0f172a; --sidebar-hover: #1e293b;
+      --accent: #2563eb; --accent-light: #eff6ff; --accent-dark: #1d4ed8;
+      --text-1: #0f172a; --text-2: #475569; --text-3: #94a3b8;
+      --border: #e2e8f0; --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.06), 0 2px 4px rgba(0,0,0,.05);
+    }
+    body { font-family: 'DM Sans','Noto Sans JP',sans-serif; background: var(--bg); color: var(--text-1); min-height: 100vh; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar { width: 248px; min-width: 248px; background: var(--sidebar-bg); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sidebar-brand { padding: 28px 20px 22px; border-bottom: 1px solid #1e293b; }
+    .brand-eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #475569; font-weight: 600; margin-bottom: 6px; }
+    .brand-title { font-size: 17px; font-weight: 700; color: #f1f5f9; letter-spacing: -.02em; }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .nav-group-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #334155; padding: 6px 8px 4px; font-weight: 700; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; color: #94a3b8; text-decoration: none; font-size: 13.5px; font-weight: 500; transition: background .12s, color .12s; margin-bottom: 1px; border: none; background: none; cursor: pointer; font-family: inherit; width: 100%; text-align: left; }
+    .nav-item:hover { background: var(--sidebar-hover); color: #e2e8f0; }
+    .nav-item.active { background: #1e3a5f; color: #93c5fd; font-weight: 600; }
+    .nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+    .sidebar-footer { padding: 14px 12px; border-top: 1px solid #1e293b; }
+    .main-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; height: 58px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow-sm); }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); }
+    .breadcrumb .current { color: var(--text-1); font-weight: 600; }
+    .topbar-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .page-body { padding: 32px; flex: 1; }
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -.03em; margin-bottom: 4px; }
+    .page-header p { font-size: 13px; color: var(--text-2); }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .menu-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-decoration: none; color: var(--text-1); display: flex; flex-direction: column; align-items: flex-start; gap: 12px; box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s; }
+    .menu-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .menu-card-icon { font-size: 28px; }
+    .menu-card-title { font-size: 15px; font-weight: 700; }
+    .menu-card-desc { font-size: 12px; color: var(--text-2); }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-eyebrow">Admin Panel</div>
+      <div class="brand-title">EC管理システム</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">メインメニュー</div>
+      <a th:href="@{/admin}"            class="nav-item active"><span class="nav-icon">🏠</span>ダッシュボード</a>
+      <a th:href="@{/admin/products}"   class="nav-item"><span class="nav-icon">📦</span>商品管理</a>
+      <a th:href="@{/admin/users}"      class="nav-item"><span class="nav-icon">👤</span>ユーザー管理</a>
+      <a th:href="@{/admin/orders}"     class="nav-item"><span class="nav-icon">🛒</span>注文管理</a>
+      <a th:href="@{/admin/categories}" class="nav-item"><span class="nav-icon">🏷️</span>カテゴリー管理</a>
+      <div class="nav-group-label" style="margin-top:16px;">その他</div>
+      <a th:href="@{/}" class="nav-item"><span class="nav-icon">🌐</span>サイトを見る</a>
+    </nav>
+    <div class="sidebar-footer">
+      <form th:action="@{/logout}" method="post">
+        <button type="submit" class="nav-item"><span class="nav-icon">🚪</span>ログアウト</button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <nav class="breadcrumb">
+        <span class="current">ダッシュボード</span>
+      </nav>
+      <div class="topbar-user">
+        <div class="avatar">A</div>
+        <span sec:authentication="name">admin</span>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <div class="page-header">
+        <h1>ダッシュボード</h1>
+        <p>管理メニューから操作してください</p>
+      </div>
+
+      <div class="menu-grid">
+        <a th:href="@{/admin/products}" class="menu-card">
+          <span class="menu-card-icon">📦</span>
+          <span class="menu-card-title">商品管理</span>
+          <span class="menu-card-desc">商品の追加・編集・削除</span>
+        </a>
+        <a th:href="@{/admin/users}" class="menu-card">
+          <span class="menu-card-icon">👤</span>
+          <span class="menu-card-title">ユーザー管理</span>
+          <span class="menu-card-desc">ユーザーの確認・管理</span>
+        </a>
+        <a th:href="@{/admin/orders}" class="menu-card">
+          <span class="menu-card-icon">🛒</span>
+          <span class="menu-card-title">注文管理</span>
+          <span class="menu-card-desc">注文の確認・ステータス管理</span>
+        </a>
+        <a th:href="@{/admin/categories}" class="menu-card">
+          <span class="menu-card-icon">🏷️</span>
+          <span class="menu-card-title">カテゴリー管理</span>
+          <span class="menu-card-desc">カテゴリーの追加・編集・削除</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

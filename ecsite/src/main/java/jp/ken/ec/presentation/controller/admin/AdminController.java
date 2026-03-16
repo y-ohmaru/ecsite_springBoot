@@ -10,6 +10,6 @@ public class AdminController {
 	
 	@GetMapping
 	public String dashboard() {
-		return "redirect:/admin/products";
+		return "admin/dashboard";
 	}
 }
