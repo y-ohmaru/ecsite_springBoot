@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import jp.ken.ec.application.service.ProductSelectService;
@@ -25,7 +26,26 @@ public class CartController {
 	//カートに商品追加
 	@PostMapping("/cart/add")
 	public String add_cart(@RequestParam("product_id") Long product_id,@RequestParam(value = "quantity",defaultValue ="1")
-							int quantity, HttpSession session) throws Exception {
+							int quantity, HttpSession session ,RedirectAttributes redirectAttributes) throws Exception {
+
+		//サービスクラス利用して商品詳細情報を ProductFormとして取得
+		ProductForm product_form = product_service.get_product_id(product_id);
+		if(product_form == null) {
+			//エラーページにリダイレクト予定
+			return "redirect:/";
+			
+		}
+		
+		//修正コード追加
+		//在庫チェック
+		int stock = product_form.getStock_quantity();
+		if(stock <= 0) {
+			redirectAttributes.addFlashAttribute("error","この商品は在庫切れです");
+			return "redirect:/product/" + product_id;
+		}
+		
+		
+		//カート内の既存数量+今回の数量が在庫を超えないかチェック
 		//セッションからカート取得、なければ新規作成
 		Cart cart = (Cart)session.getAttribute("cart");
 		if (cart == null) {
@@ -33,14 +53,15 @@ public class CartController {
 			session.setAttribute("cart", cart);
 		}
 		
-		//サービスクラス利用して商品詳細情報を ProductFormとして取得
-		ProductForm product_form = product_service.get_product_id(product_id);
-		if(product_form == null) {
-			//エラーページにリダイレクト予定
-			return "redirect:/top";
-			
+		int currentQuantity = cart.getItems().stream()
+				.filter(item -> item.getProductId().equals(product_id))
+				.mapToInt(CartItem::getQuantity)
+				.findFirst()
+				.orElse(0);
+		if(currentQuantity + quantity > stock) {
+			redirectAttributes.addFlashAttribute("error", "在庫数を超えて追加出来ません。(残り在庫"+(stock - currentQuantity) +"個）");
+			return "redirect:/product/"+product_id;
 		}
-		
 		
 		CartItem new_item = new CartItem(product_id,quantity);
 		new_item.setProduct_form(product_form);
