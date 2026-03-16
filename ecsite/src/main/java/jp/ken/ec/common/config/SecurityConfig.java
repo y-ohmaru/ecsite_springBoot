@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import jp.ken.ec.application.service.CustomUserDetailsService;
@@ -58,7 +59,7 @@ public class SecurityConfig {
 					.loginPage("/login") //カスタムログインページ
 					.usernameParameter("username")  // フォームのフィールド名に合わせる
 				    .passwordParameter("password")
-					.defaultSuccessUrl("/",true)
+					.successHandler(customSuccessHandler())//ロールで遷移先振り分け
 					.failureUrl("/login?error=true")//ログイン失敗時にエラーパラメータ付与
 					.permitAll() //ログイン成功後の遷移	
 		)
@@ -73,6 +74,24 @@ public class SecurityConfig {
 		
 		return http.build();
 		
+	}
+	
+	
+	//ロールで遷移先振り分けロジック
+	@Bean
+	public AuthenticationSuccessHandler customSuccessHandler() {
+		return (request,response, authentication) -> {
+			boolean isAdmin = authentication.getAuthorities().stream()
+					.anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+			
+			if(isAdmin) {
+				response.sendRedirect("/admin");
+			}else {
+				response.sendRedirect("/");
+			}
+		
+		
+		};
 	}
 	
 
