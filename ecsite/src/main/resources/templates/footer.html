@@ -1,137 +1,167 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>共通フッター</title>
-</head>
+<head><meta charset="UTF-8"><title>フッター</title></head>
 <body>
+<div th:fragment="common-footer">
   <style>
+    .site-footer *, .site-footer *::before, .site-footer *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+    }
     .site-footer {
-      background: #0f172a;
-      border-top: 1px solid #1e293b;
       font-family: 'DM Sans', 'Noto Sans JP', sans-serif;
-      color: #94a3b8;
-      margin-top: auto;
+      margin-top: 40px;
     }
 
-    .footer-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 36px 28px 24px;
-    }
-
-    /* ─── TOP ROW ─── */
-    .footer-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 32px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-
-    /* Brand */
-    .footer-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /* ─── BACK TO TOP ─── */
+    .footer-top-btn {
+      display: block;
+      width: 100%;
+      background: #37475a;
+      color: #ffffff;
+      text-align: center;
+      padding: 14px;
+      font-size: 13px;
+      font-weight: 500;
       text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: background .15s;
     }
-    .footer-brand-icon {
-      width: 30px; height: 30px;
-      background: #2563eb;
-      border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
+    .footer-top-btn:hover { background: #485769; }
+
+    /* ─── MAIN FOOTER ─── */
+    .footer-main {
+      background: #232f3e;
+      padding: 36px 16px 24px;
     }
-    .footer-brand-name {
+    .footer-cols {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 28px;
+      margin-bottom: 32px;
+    }
+    .footer-col-title {
       font-size: 14px;
       font-weight: 700;
-      color: #f1f5f9;
-      letter-spacing: -.02em;
+      color: #ffffff;
+      margin-bottom: 12px;
     }
-
-    /* Nav links */
-    .footer-nav {
+    .footer-col ul {
+      list-style: none;
       display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-      align-items: center;
+      flex-direction: column;
+      gap: 8px;
     }
-    .footer-nav a {
-      font-size: 12.5px;
-      color: #64748b;
+    .footer-col ul li a {
+      font-size: 13px;
+      color: #cccccc;
       text-decoration: none;
-      font-weight: 500;
       transition: color .15s;
     }
-    .footer-nav a:hover { color: #94a3b8; }
+    .footer-col ul li a:hover { color: #ffffff; }
 
-    /* ─── DIVIDER ─── */
-    .footer-divider {
-      height: 1px;
-      background: #1e293b;
-      margin-bottom: 20px;
-    }
-
-    /* ─── BOTTOM ROW ─── */
+    /* ─── BOTTOM BAR ─── */
     .footer-bottom {
+      background: #131921;
+      padding: 16px;
+    }
+    .footer-bottom-inner {
+      max-width: 1100px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
     }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .footer-logo-icon { font-size: 18px; }
+    .footer-logo-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
     .footer-copy {
       font-size: 12px;
-      color: #475569;
-    }
-    .footer-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11.5px;
-      color: #334155;
-      background: #1e293b;
-      border: 1px solid #293548;
-      border-radius: 20px;
-      padding: 3px 10px;
+      color: #888888;
     }
 
     @media (max-width: 640px) {
-      .footer-top { flex-direction: column; gap: 20px; }
-      .footer-bottom { justify-content: center; text-align: center; }
+      .footer-cols { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+      .footer-bottom-inner { justify-content: center; text-align: center; }
     }
   </style>
 
-  <div th:fragment="common-footer">
-    <footer class="site-footer">
-      <div class="footer-inner">
+  <footer class="site-footer">
 
-        <!-- トップ行 -->
-        <div class="footer-top">
-          <a th:href="@{/}" class="footer-brand">
-            <div class="footer-brand-icon">🛍</div>
-            <span class="footer-brand-name">サンプルECサイト</span>
-          </a>
-          <nav class="footer-nav">
-            <a th:href="@{/}">トップ</a>
-            <a th:href="@{/search}">商品一覧</a>
-            <a th:href="@{/cart}">カート</a>
-            <a th:href="@{/login}">ログイン</a>
-          </nav>
+    <!-- トップへ戻る -->
+    <button class="footer-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      ▲ トップへ戻る
+    </button>
+
+    <!-- メインフッター -->
+    <div class="footer-main">
+      <div class="footer-cols">
+
+        <div class="footer-col">
+          <div class="footer-col-title">お買い物について</div>
+          <ul>
+            <li><a th:href="@{/}">トップページ</a></li>
+            <li><a th:href="@{/search}">商品一覧</a></li>
+            <li><a th:href="@{/cart}">カートを見る</a></li>
+            <li><a th:href="@{/purchase/confirm}">ご注文手続き</a></li>
+          </ul>
         </div>
 
-        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <div class="footer-col-title">カテゴリー</div>
+          <ul>
+            <li><a th:href="@{/search?query=家電}">家電</a></li>
+            <li><a th:href="@{/search?query=本}">本</a></li>
+            <li><a th:href="@{/search?query=ファッション}">ファッション</a></li>
+          </ul>
+        </div>
 
-        <!-- ボトム行 -->
-        <div class="footer-bottom">
-          <span class="footer-copy">&copy; 2025 サンプルECサイト. All rights reserved.</span>
-          <span class="footer-badge">⚡ Spring Boot</span>
+        <div class="footer-col">
+          <div class="footer-col-title">アカウント</div>
+          <ul>
+            <li><a th:href="@{/login}">ログイン</a></li>
+            <li><a th:href="@{/register}">新規登録</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">サイト情報</div>
+          <ul>
+            <li><a href="#">利用規約</a></li>
+            <li><a href="#">プライバシーポリシー</a></li>
+            <li><a href="#">お問い合わせ</a></li>
+          </ul>
         </div>
 
       </div>
-    </footer>
-  </div>
+    </div>
+
+    <!-- ボトムバー -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <a th:href="@{/}" class="footer-logo">
+          <span class="footer-logo-icon">🛍</span>
+          <span class="footer-logo-text">サンプルECサイト</span>
+        </a>
+        <span class="footer-copy">&copy; 2025 サンプルECサイト. All rights reserved.</span>
+      </div>
+    </div>
+
+  </footer>
+</div>
 </body>
 </html>

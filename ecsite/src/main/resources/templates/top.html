@@ -3,96 +3,336 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>トップページ</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        /* 商品一覧セクションのスタイル */
-        .product-list {
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
-        .product-list h3 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #333;
-        }
-        .product-list ul {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .product-list li {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .product-list li:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-        .product-list a {
-            text-decoration: none;
-            color: inherit;
-        }
-        .product-list img {
-            width: 100%;
-            height: auto;
-            max-width: 200px;
-            max-height: 200px;
-            margin: 0 auto 10px;
-            display: block;
-            border-radius: 4px;
-        }
-        .product-list h4 {
-            margin: 10px 0 5px;
-            font-size: 18px;
-            color: #333;
-        }
-        .product-list p {
-            margin: 5px 0;
-            font-size: 14px;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>トップページ - サンプルECサイト</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f0f2f5;
+      --surface:      #ffffff;
+      --accent:       #2563eb;
+      --accent-light: #eff6ff;
+      --accent-dark:  #1d4ed8;
+      --text-1:       #0f172a;
+      --text-2:       #475569;
+      --text-3:       #94a3b8;
+      --border:       #e2e8f0;
+      --radius:       12px;
+      --shadow-sm:    0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:    0 4px 12px rgba(0,0,0,.08);
+      --shadow-hover: 0 8px 24px rgba(0,0,0,.12);
+    }
+
+    body {
+      font-family: 'DM Sans', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: #0f172a;
+      padding: 56px 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(37,99,235,.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(37,99,235,.15);
+      border: 1px solid rgba(37,99,235,.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #93c5fd;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -.03em;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .hero p {
+      font-size: 15px;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .page-body {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 28px;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* ─── SECTION HEADER ─── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-1);
+      letter-spacing: -.02em;
+    }
+    .section-count {
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    /* ─── PRODUCT GRID ─── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      list-style: none;
+    }
+
+    /* ─── PRODUCT CARD ─── */
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .2s ease, transform .2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px);
+    }
+
+    .product-card-link {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* 画像エリア */
+    .product-img-wrap {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #f8fafc;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .product-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .3s ease;
+    }
+    .product-card:hover .product-img-wrap img {
+      transform: scale(1.04);
+    }
+
+    /* カテゴリバッジ */
+    .product-cat-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15,23,42,.7);
+      color: #93c5fd;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      letter-spacing: .04em;
+      backdrop-filter: blur(4px);
+    }
+
+    /* テキストエリア */
+    .product-info {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .product-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+      line-height: 1.4;
+      /* 2行で省略 */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-desc {
+      font-size: 12.5px;
+      color: var(--text-3);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 12px;
+    }
+    .product-price {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -.02em;
+    }
+    .product-price-unit {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-3);
+      margin-left: 2px;
+    }
+    .product-arrow {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      transition: background .15s, color .15s;
+    }
+    .product-card:hover .product-arrow {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-3);
+      grid-column: 1 / -1;
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { font-size: 15px; }
+
+    /* ─── ERROR BANNER ─── */
+    .error-banner {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      font-size: 13.5px;
+      margin-bottom: 24px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      .page-body { padding: 24px 16px; }
+      .hero { padding: 40px 16px; }
+      .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- 共通ヘッダーのフラグメントを挿入 -->
-    <div th:replace="~{header :: common-header}"></div>
-    
-    <!-- メインコンテンツ -->
-    <main>
-        <!-- ヒーローバナー -->
-        <section class="hero-banner">
-            <h2>ようこそ、サンプルECサイトへ！</h2>
-            <p>最新の商品情報やお得なキャンペーンをご覧ください。</p>
-        </section>
-        
-        <!-- 商品一覧セクション -->
-        <section class="product-list">
-            <h3>商品一覧</h3>
-            <ul>
-                <li th:each="product : ${products}">
-                    <a th:href="@{/product/{id}(id=${product.product_id})}">
-                        <img th:src="${product.image_url}" alt="商品画像">
-                        <h4 th:text="${product.product_name}">商品名</h4>
-                    </a>
-                    <p th:text="'価格: ' + ${product.price} + ' 円'">価格</p>
-                    <p th:text="${product.description}">説明</p>
-                </li>
-            </ul>
-        </section>
-    </main>
-    
-    <!-- 共通フッターのフラグメントを挿入 -->
-    <div th:replace="~{footer :: common-footer}"></div>
+  <!-- 共通ヘッダー -->
+  <div th:replace="~{header :: common-header}"></div>
+
+  <!-- ヒーローバナー -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">✨ New Arrivals</div>
+      <h1>あなたにぴったりの<br>商品が見つかります</h1>
+      <p>最新の商品情報やお得なキャンペーンをご覧ください。</p>
+    </div>
+  </section>
+
+  <!-- メインコンテンツ -->
+  <main class="page-body">
+
+    <!-- エラー表示 -->
+    <div th:if="${error}" class="error-banner">
+      ⚠️ <span th:text="${error}"></span>
+    </div>
+
+    <!-- セクションヘッダー -->
+    <div class="section-header">
+      <h2 class="section-title">商品一覧</h2>
+      <span class="section-count"
+            th:text="${products != null ? #lists.size(products) + ' 件' : ''}"></span>
+    </div>
+
+    <!-- 商品グリッド -->
+    <ul class="product-grid">
+      <li th:each="product : ${products}" class="product-card">
+        <a th:href="@{/product/{id}(id=${product.product_id})}" class="product-card-link">
+          <div class="product-img-wrap">
+            <img th:src="${product.image_url}" alt="商品画像"
+                 onerror="this.style.background='#f1f5f9'">
+            <span class="product-cat-badge">カテゴリー <span th:text="${product.category_id}"></span></span>
+          </div>
+          <div class="product-info">
+            <div class="product-name" th:text="${product.product_name}">商品名</div>
+            <div class="product-desc" th:text="${product.description}">説明</div>
+            <div class="product-footer">
+              <div class="product-price">
+                <span th:text="${#numbers.formatInteger(product.price, 1, 'COMMA')}">0</span>
+                <span class="product-price-unit">円</span>
+              </div>
+              <div class="product-arrow">→</div>
+            </div>
+          </div>
+        </a>
+      </li>
+
+      <!-- 商品なし -->
+      <li th:if="${products == null or #lists.isEmpty(products)}" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>商品が登録されていません。</p>
+      </li>
+    </ul>
+
+  </main>
+
+  <!-- 共通フッター -->
+  <div th:replace="~{footer :: common-footer}"></div>
 </body>
 </html>
