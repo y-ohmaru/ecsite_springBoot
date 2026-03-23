@@ -64,6 +64,16 @@ public class SecurityConfig {
 					.permitAll() //ログイン成功後の遷移	
 		)
 			
+			//ログアウト設定：topページにリダイレクト
+			.logout(logout -> logout
+					.logoutUrl("/logout")
+					.logoutSuccessUrl("/")
+					.invalidateHttpSession(true) //session 破棄
+					.deleteCookies("JSESSIONID") //Cookie 削除
+					.permitAll()
+			 )
+			
+			
 	    .csrf(csrf -> csrf.disable())  // H2コンソール用に CSRF を無効化（重要）
 	    .headers(headers -> headers.frameOptions().disable());  // H2コンソール用に Frame Options を無効化（重要）　
 		
