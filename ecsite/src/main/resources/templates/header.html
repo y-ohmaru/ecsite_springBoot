@@ -1,38 +1,295 @@
 <!-- fragments/common-header.html -->
 <div th:fragment="common-header">
-	<header class="site-header">
-		<!-- ロゴ -->
-		<div class="header-logo">
-			<h1><a th:href="@{/}" class="logo-link">サンプルECサイト</a></h1>
-		</div>
-		<!-- 検索フォーム -->
-		<div class="header-search">
-			<form th:action="@{/search}" method="get">
-				<input type="text" name="query" placeholder="商品を検索">
-				<button type="submit">検索</button>
-			</form>
-		</div>
-		<!-- 認証＆カートエリア -->
-		<div class="header-auth-cart">
-			<div class="header-auth">
-				<!-- ログイン済みの場合：principal.username が "anonymousUser" でない場合 -->
-				<div sec:authorize="#authentication.principal != 'anonymousUser'">
-					<form th:action="@{/logout}" method="post">
-						<span sec:authentication="name"></span> さん、ログイン中&nbsp;
-						<input type="submit" value="ログアウト" class="logout-btn">
-					</form>
-				</div>
-				<!-- 匿名の場合：principal.username が "anonymousUser" の場合 -->
-				<div sec:authorize="#authentication.principal == 'anonymousUser'">
-					<a th:href="@{/login}" class="login-link">ログイン</a>
-				</div>
-			</div>
-			<!-- カートボタン -->
-			<div class="header-cart">
-				<a th:href="@{/cart}">
-					カート (<span th:text="${session.cart != null ? session.cart.totalQuantity : 0}">0</span>)
-				</a>
-			</div>
-		</div>
-	</header>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --hdr-bg:       #0f172a;
+      --hdr-border:   #1e293b;
+      --accent:       #2563eb;
+      --accent-light: #eff6ff;
+      --accent-dark:  #1d4ed8;
+      --text-inv:     #f1f5f9;
+      --text-muted:   #94a3b8;
+      --text-sub:     #64748b;
+      --surface:      #1e293b;
+      --radius-sm:    6px;
+      --radius-md:    10px;
+      --transition:   .18s ease;
+    }
+
+    /* ─── RESET (header scope) ─── */
+    .site-header *, .site-header *::before, .site-header *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+    }
+
+    /* ─── WRAPPER ─── */
+    .site-header {
+      background: var(--hdr-bg);
+      border-bottom: 1px solid var(--hdr-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      font-family: 'DM Sans', 'Noto Sans JP', sans-serif;
+    }
+
+    /* ─── INNER ─── */
+    .hdr-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* ─── LOGO ─── */
+    .hdr-logo {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .hdr-logo-icon {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .hdr-logo-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-inv);
+      letter-spacing: -.02em;
+      white-space: nowrap;
+    }
+
+    /* ─── DIVIDER ─── */
+    .hdr-divider {
+      width: 1px; height: 24px;
+      background: var(--hdr-border);
+      flex-shrink: 0;
+    }
+
+    /* ─── SEARCH ─── */
+    .hdr-search {
+      flex: 1;
+      max-width: 400px;
+    }
+    .hdr-search form {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid #334155;
+      border-radius: var(--radius-md);
+      padding: 0 14px;
+      height: 38px;
+      gap: 8px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .hdr-search form:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.2);
+    }
+    .hdr-search-icon {
+      color: var(--text-sub);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .hdr-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text-inv);
+      font-family: inherit;
+      font-size: 13.5px;
+    }
+    .hdr-search input::placeholder { color: var(--text-sub); }
+    .hdr-search button {
+      display: none; /* Enter で送信 */
+    }
+
+    /* ─── RIGHT AREA ─── */
+    .hdr-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ─── CART BUTTON ─── */
+    .hdr-cart-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 14px;
+      height: 36px;
+      background: var(--surface);
+      border: 1px solid #334155;
+      border-radius: var(--radius-md);
+      color: var(--text-inv);
+      text-decoration: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background var(--transition), border-color var(--transition);
+      white-space: nowrap;
+    }
+    .hdr-cart-btn:hover {
+      background: #293548;
+      border-color: #475569;
+    }
+    .hdr-cart-icon { font-size: 15px; }
+    .hdr-cart-count {
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 5px;
+    }
+
+    /* ─── AUTH AREA ─── */
+    .hdr-auth {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ログイン中ユーザー表示 */
+    .hdr-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hdr-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .hdr-username {
+      font-size: 13px;
+      color: var(--text-inv);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .hdr-logout-btn {
+      height: 34px;
+      padding: 0 13px;
+      background: transparent;
+      border: 1px solid #334155;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+      white-space: nowrap;
+    }
+    .hdr-logout-btn:hover {
+      background: #293548;
+      color: #f87171;
+      border-color: #ef4444;
+    }
+
+    /* ログインリンク */
+    .hdr-login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 16px;
+      height: 36px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background var(--transition), box-shadow var(--transition);
+      white-space: nowrap;
+    }
+    .hdr-login-btn:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 4px 12px rgba(37,99,235,.35);
+    }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 640px) {
+      .hdr-inner { padding: 0 16px; gap: 12px; }
+      .hdr-divider { display: none; }
+      .hdr-search { max-width: 160px; }
+      .hdr-username { display: none; }
+    }
+  </style>
+
+  <header class="site-header">
+    <div class="hdr-inner">
+
+      <!-- ロゴ -->
+      <a th:href="@{/}" class="hdr-logo">
+        <div class="hdr-logo-icon">🛍</div>
+        <span class="hdr-logo-text">サンプルECサイト</span>
+      </a>
+
+      <div class="hdr-divider"></div>
+
+      <!-- 検索フォーム -->
+      <div class="hdr-search">
+        <form th:action="@{/search}" method="get">
+          <span class="hdr-search-icon">🔍</span>
+          <input type="text" name="query" placeholder="商品を検索…">
+          <button type="submit">検索</button>
+        </form>
+      </div>
+
+      <!-- 右側エリア -->
+      <div class="hdr-right">
+
+        <!-- カートボタン -->
+        <a th:href="@{/cart}" class="hdr-cart-btn">
+          <span class="hdr-cart-icon">🛒</span>
+          カート
+          <span class="hdr-cart-count"
+                th:text="${session.cart != null ? session.cart.totalQuantity : 0}">0</span>
+        </a>
+
+        <!-- 認証エリア -->
+        <div class="hdr-auth">
+          <!-- ログイン済み -->
+          <div class="hdr-user" sec:authorize="#authentication.principal != 'anonymousUser'">
+            <div class="hdr-avatar">
+              <!-- ユーザー名の頭文字 -->
+              <span sec:authentication="name" th:text="${#strings.substring(#authentication.name,0,1).toUpperCase()}">U</span>
+            </div>
+            <span class="hdr-username" sec:authentication="name"></span>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+              <button type="submit" class="hdr-logout-btn">ログアウト</button>
+            </form>
+          </div>
+
+          <!-- 未ログイン -->
+          <div sec:authorize="#authentication.principal == 'anonymousUser'">
+            <a th:href="@{/login}" class="hdr-login-btn">ログイン</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
 </div>
