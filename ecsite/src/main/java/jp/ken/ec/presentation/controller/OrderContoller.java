@@ -34,8 +34,18 @@ public class OrderContoller {
 	
 	
 	@GetMapping("/order/address")
-	public String oder_address(Model model) {
+	public String oder_address(Model model, HttpSession session) {
 		model.addAttribute("order_form", new OrderForm());
+		
+		Cart cart = (Cart)session.getAttribute("cart");
+		model.addAttribute(cart);
+		
+		if (cart != null) {
+			model.addAttribute("total_amount",cart.getTotal_amount());
+		}else {
+			model.addAttribute("total_amount",0);
+		
+		}
 		return "order_address";
 		
 	}
@@ -46,6 +56,13 @@ public class OrderContoller {
 			BindingResult bindingResult,Model model,HttpSession session) {
 		if(bindingResult.hasErrors()) {
 			//入力にエラーある場合、再度入力させる。
+			Cart cart = (Cart)session.getAttribute("cart");
+			model.addAttribute("cart", cart);
+			if(cart != null) {
+				model.addAttribute("total_amount",cart.getTotal_amount());
+			}else {
+				model.addAttribute("total_amount",0);
+			}
 			return "order_address";
 		}
 		model.addAttribute("address", order_form);

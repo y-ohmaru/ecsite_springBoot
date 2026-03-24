@@ -1,168 +1,346 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-
 <head>
-	<meta charset="UTF-8">
-	<title>購入確認 - サンプルECサイト</title>
-	<link rel="stylesheet" th:href="@{/css/style.css}">
-	<style>
-		.confirm-container {
-			max-width: 800px;
-			margin: 0 auto;
-			padding: 20px;
-		}
+  <meta charset="UTF-8">
+  <title>注文確認 - サンプルECサイト</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-		.address-section,
-		.cart-section {
-			margin-bottom: 30px;
-		}
+    :root {
+      --bg:          #f0f2f5;
+      --surface:     #ffffff;
+      --danger:      #dc2626;
+      --text-1:      #0f172a;
+      --text-2:      #475569;
+      --text-3:      #94a3b8;
+      --border:      #e2e8f0;
+      --radius:      12px;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,.07);
+    }
 
-		.address-section h2,
-		.cart-section h2 {
-			margin-bottom: 15px;
-			border-bottom: 1px solid #ddd;
-			padding-bottom: 5px;
-		}
+    body {
+      font-family: 'DM Sans', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-		.address-field {
-			margin: 8px 0;
-			font-size: 16px;
-		}
+    /* ─── STEP BAR ─── */
+    .step-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .step-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+    }
+    .step-item { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .step-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .step-circle.done     { background: #16a34a; color: #fff; }
+    .step-circle.active   { background: #131921; color: #fff; }
+    .step-circle.inactive { background: var(--bg); border: 1.5px solid var(--border); color: var(--text-3); }
+    .step-label { font-size: 13px; font-weight: 500; }
+    .step-label.done     { color: #16a34a; }
+    .step-label.active   { color: var(--text-1); }
+    .step-label.inactive { color: var(--text-3); }
+    .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 12px; }
+    .step-line.done { background: #16a34a; }
 
-		.cart-item {
-			display: flex;
-			align-items: center;
-			border-bottom: 1px solid #ddd;
-			padding: 10px 0;
-		}
+    /* ─── PAGE BODY ─── */
+    .page-body {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+      flex: 1; width: 100%;
+    }
+    .page-title {
+      font-size: 20px; font-weight: 700;
+      letter-spacing: -.02em; margin-bottom: 24px;
+    }
 
-		.cart-item:last-child {
-			border-bottom: none;
-		}
+    /* ─── 2カラム ─── */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      align-items: start;
+    }
 
-		.item-image img {
-			max-width: 100px;
-			margin-right: 20px;
-			border: 1px solid #ccc;
-			padding: 5px;
-			border-radius: 4px;
-		}
+    /* ─── カード共通 ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .card:last-child { margin-bottom: 0; }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .card-header h2 { font-size: 14px; font-weight: 700; }
+    .card-body { padding: 20px; }
 
-		.item-details {
-			flex-grow: 1;
-		}
+    /* ─── 配送先情報 ─── */
+    .address-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+    }
+    .address-row:last-child { border-bottom: none; }
+    .address-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-3);
+      white-space: nowrap;
+      min-width: 72px;
+    }
+    .address-value { color: var(--text-1); font-weight: 500; }
 
-		.item-details p {
-			margin: 4px 0;
-		}
+    /* ─── 商品リスト ─── */
+    .confirm-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .confirm-item:last-child { border-bottom: none; }
+    .item-img {
+      width: 64px; height: 64px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      background: #f8fafc;
+      flex-shrink: 0;
+    }
+    .item-info { flex: 1; min-width: 0; }
+    .item-name {
+      font-size: 14px; font-weight: 600; color: var(--text-1);
+      margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .item-price { font-size: 13px; color: var(--text-2); }
+    .item-qty {
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    }
+    .qty-label { font-size: 12px; color: var(--text-3); }
+    .qty-value {
+      font-size: 14px; font-weight: 600; color: var(--text-1);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 2px 10px;
+    }
+    .item-subtotal {
+      font-size: 15px; font-weight: 700;
+      color: var(--danger); white-space: nowrap;
+      min-width: 80px; text-align: right;
+    }
 
-		.total-amount {
-			text-align: right;
-			font-size: 20px;
-			font-weight: bold;
-			margin-top: 20px;
-		}
+    /* ─── 右：サマリー ─── */
+    .summary-body { padding: 16px 20px 0; }
+    .summary-row {
+      display: flex; justify-content: space-between;
+      align-items: center; font-size: 13px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .summary-row:last-of-type { border-bottom: none; }
+    .summary-row-label { color: var(--text-2); }
+    .summary-row-val   { font-weight: 600; color: var(--text-1); }
+    .summary-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; border-top: 2px solid var(--text-1);
+    }
+    .summary-total-label { font-size: 14px; font-weight: 700; }
+    .summary-total-price { font-size: 22px; font-weight: 700; color: var(--danger); }
 
-		.action-buttons {
-			margin-top: 30px;
-			text-align: center;
-		}
+    /* ─── アクションボタン ─── */
+    .action-area {
+      display: flex; flex-direction: column;
+      gap: 10px; padding: 0 20px 20px;
+    }
+    .btn-confirm {
+      display: block; width: 100%; padding: 13px;
+      background: #febd69; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 700; color: #131921;
+      font-family: inherit; cursor: pointer; text-align: center;
+      transition: background .15s, box-shadow .15s;
+    }
+    .btn-confirm:hover {
+      background: #f3a847;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    .btn-back {
+      display: block; width: 100%; padding: 11px;
+      background: var(--surface);
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; font-weight: 600; color: var(--text-2);
+      text-align: center; text-decoration: none;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-back:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-		.action-buttons .btn {
-			padding: 10px 20px;
-			font-size: 16px;
-			border: none;
-			border-radius: 4px;
-			cursor: pointer;
-			text-decoration: none;
-			display: inline-block;
-			margin: 0 10px;
-		}
-
-		.back-btn {
-			background-color: #6c757d;
-			color: #fff;
-		}
-
-		.confirm-btn {
-			background-color: #007bff;
-			color: #fff;
-		}
-	</style>
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 680px) {
+      .layout { grid-template-columns: 1fr; }
+      .step-label { display: none; }
+      .item-subtotal { display: none; }
+    }
+  </style>
 </head>
-
 <body>
-	<!-- 共通ヘッダー -->
-	<div th:replace="~{header :: common-header}"></div>
 
-	<div class="confirm-container">
-		<h1>購入確認</h1>
+  <div th:replace="~{header :: common-header}"></div>
 
-		<!-- 配送先住所情報 -->
-		<div class="address-section">
-			<h2>配送先住所</h2>
-			<div class="address-field">
-				<strong>郵便番号:</strong>
-				<span th:text="${address.postal_code}">000-0000</span>
-			</div>
-			<div class="address-field">
-				<strong>住所:</strong>
-				<span th:text="${address.delivery_address}">東京都新宿区西新宿1-1-1</span>
-			</div>
-			<div class="address-field">
-				<strong>氏名:</strong>
-				<span th:text="${address.customer_name}">山田太郎</span>
-			</div>
-			<div class="address-field">
-				<strong>電話番号:</strong>
-				<span th:text="${address.phone_number}">03-1234-5678</span>
-			</div>
-		</div>
+  <!-- ステップバー（カート・購入確認・住所入力 完了済み） -->
+  <div class="step-bar">
+    <div class="step-inner">
+      <div class="step-item">
+        <div class="step-circle done">✓</div>
+        <span class="step-label done">カート</span>
+      </div>
+      <div class="step-line done"></div>
+      <div class="step-item">
+        <div class="step-circle done">✓</div>
+        <span class="step-label done">購入確認</span>
+      </div>
+      <div class="step-line done"></div>
+      <div class="step-item">
+        <div class="step-circle done">✓</div>
+        <span class="step-label done">住所入力</span>
+      </div>
+      <div class="step-line done"></div>
+      <div class="step-item">
+        <div class="step-circle active">4</div>
+        <span class="step-label active">注文確認</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item">
+        <div class="step-circle inactive">5</div>
+        <span class="step-label inactive">完了</span>
+      </div>
+    </div>
+  </div>
 
-		<!-- カート内商品一覧 -->
-		<div class="cart-section">
-			<h2>購入商品</h2>
-			<div th:if="${cart == null or #lists.isEmpty(cart.items)}">
-				<p>カートは空です。</p>
-			</div>
-			<div th:if="${cart != null and !#lists.isEmpty(cart.items)}">
-				<div th:each="item : ${cart.items}" class="cart-item">
-					<div class="item-image">
-						<!-- CartItem の product_form を利用（フィールド名が product_form の場合） -->
-						<img th:src="${item.product_form.image_url}" alt="商品画像" />
-					</div>
-					<div class="item-details">
-						<p>商品名: <span th:text="${item.product_form.product_name}">商品名</span></p>
-						<p>数量: <span th:text="${item.quantity}">数量</span></p>
-						<p>単価: <span th:text="${item.product_form.price}">単価</span> 円</p>
-						<p>小計: <span th:text="${item.product_form.price * item.quantity}">小計</span> 円</p>
-					</div>
-				</div>
-			</div>
-			<div class="total-amount" th:if="${cart != null}">
-				合計金額: <span th:text="${total_amount}">0</span> 円
-			</div>
-		</div>
+  <div class="page-body">
+    <h1 class="page-title">注文内容の確認</h1>
 
-		<!-- アクションボタン -->
-		<div class="action-buttons" th:if="${cart != null and !#lists.isEmpty(cart.items)}">
-			<form th:action="@{/order/confirm}" th:object="${address}" method="post">
-				<!-- Hidden フィールドで住所情報を送信 -->
-				<input type="hidden" th:field="*{postal_code}" />
-				<input type="hidden" th:field="*{delivery_address}" />
-				<input type="hidden" th:field="*{customer_name}" />
-				<input type="hidden" th:field="*{phone_number}" />
+    <div class="layout">
 
-				<div class="action-buttons" th:if="${cart != null and !#lists.isEmpty(cart.items)}">
-					<a th:href="@{/order/address}" class="btn back-btn">戻る</a>
-					<button type="submit" class="btn confirm-btn">購入確定</button>
-				</div>
-			</form>
-		</div>
-	</div>
+      <!-- 左カラム -->
+      <div>
 
-	<!-- 共通フッター -->
-	<div th:replace="~{footer :: common-footer}"></div>
+        <!-- 配送先情報 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>配送先情報</h2>
+          </div>
+          <div class="card-body">
+            <div class="address-row">
+              <span class="address-label">郵便番号</span>
+              <span class="address-value" th:text="${address.postal_code}">000-0000</span>
+            </div>
+            <div class="address-row">
+              <span class="address-label">住所</span>
+              <span class="address-value" th:text="${address.delivery_address}">東京都〇〇区</span>
+            </div>
+            <div class="address-row">
+              <span class="address-label">お名前</span>
+              <span class="address-value" th:text="${address.customer_name}">山田 太郎</span>
+            </div>
+            <div class="address-row">
+              <span class="address-label">電話番号</span>
+              <span class="address-value" th:text="${address.phone_number}">03-1234-5678</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 注文商品 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>ご注文商品（<span th:text="${cart.totalQuantity}">0</span>点）</h2>
+          </div>
+          <div th:if="${cart == null or #lists.isEmpty(cart.items)}"
+               style="padding:20px; font-size:13px; color:var(--text-3);">
+            カートが空です
+          </div>
+          <div th:if="${cart != null and !#lists.isEmpty(cart.items)}">
+            <div th:each="item : ${cart.items}" class="confirm-item">
+              <img class="item-img"
+                   th:src="${item.product_form.image_url}"
+                   alt="商品画像"
+                   onerror="this.style.opacity='.3'">
+              <div class="item-info">
+                <div class="item-name" th:text="${item.product_form.product_name}">商品名</div>
+                <div class="item-price"
+                     th:text="${#numbers.formatInteger(item.product_form.price, 1, 'COMMA')} + '円 / 個'">0円</div>
+              </div>
+              <div class="item-qty">
+                <span class="qty-label">数量</span>
+                <span class="qty-value" th:text="${item.quantity}">1</span>
+              </div>
+              <div class="item-subtotal"
+                   th:text="${#numbers.formatInteger(item.product_form.price * item.quantity, 1, 'COMMA')} + '円'">0円</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 右カラム：サマリー＋確定ボタン -->
+      <div class="card">
+        <div class="card-header">
+          <h2>注文サマリー</h2>
+        </div>
+        <div class="summary-body">
+          <div th:each="item : ${cart.items}" class="summary-row">
+            <span class="summary-row-label"
+                  th:text="${item.product_form.product_name}">商品名</span>
+            <span class="summary-row-val"
+                  th:text="${#numbers.formatInteger(item.product_form.price * item.quantity, 1, 'COMMA')} + '円'">0円</span>
+          </div>
+        </div>
+        <div class="summary-total-row">
+          <span class="summary-total-label">合計</span>
+          <span class="summary-total-price"
+                th:text="${#numbers.formatInteger(total_amount, 1, 'COMMA')} + '円'">0円</span>
+        </div>
+        <div class="action-area">
+          <!-- 配送先情報をhiddenで送信 -->
+          <form th:action="@{/order/confirm}" th:object="${address}" method="post"
+                style="display:contents;">
+            <input type="hidden" th:field="*{postal_code}"/>
+            <input type="hidden" th:field="*{delivery_address}"/>
+            <input type="hidden" th:field="*{customer_name}"/>
+            <input type="hidden" th:field="*{phone_number}"/>
+            <button type="submit" class="btn-confirm">注文を確定する →</button>
+          </form>
+          <a th:href="@{/order/address}" class="btn-back">← 住所を修正する</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div th:replace="~{footer :: common-footer}"></div>
 </body>
-
 </html>
